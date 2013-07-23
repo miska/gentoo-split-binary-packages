@@ -1,0 +1,171 @@
+Split binary packages
+=====================
+
+New functions
+-------------
+
+_src_split()_
+~~~~~~~~~~~~~
+
+Phase during the build of the package in which files are moved into designated
+image directories for each subpackage. Each subpackage has it own directory in
+${SD} which is named exactly the same as the name of subpackage as specified in
+${SUBPACKAGES} variable. Default implementation of this function will split out
+some of the well known types of subpackages. See list of automatically split
+packages.
+
+New variables
+-------------
+
+_$\{SUBPACKAGES}_
+~~~~~~~~~~~~~~~~~
+
+Is array of the names of all subpackages that can be generated from the ebuild.
+Name of the subpackage can contain only alphanumerical characters, dashes and
+underscores. ([A-Za-z0-9_\-]) For rules see naming conventions and list of
+automatically split packages.
+
+.example
+-----------------------------------------------------------------------------
+SUBPACKAGE=( "foo-devel" "foo-doc" )
+-----------------------------------------------------------------------------
+
+_$\{SD}_
+~~~~~~~~
+
+Contains the full path to the directory with subdirectories for each
+subpackage. These are image directories into which the subpackages should be
+installed.
+
+Metadata
+~~~~~~~~
+
+Metadata are by default specified for whole package and all subpackages. If
+subpackage need different metadata, these can be provided by setting
+corresponding item of array variable with name consisting of the name of the
+metadata prepended with S.
+
+.example
+-----------------------------------------------------------------------------
+KEYWORDS="x86"
+SKEYWORDS["foo-doc"]="amd64 x86"
+-----------------------------------------------------------------------------
+
+Subpackages naming conventions
+------------------------------
+
+Apart from few exception bellow, subpackage names are consisting of the name of
+the main package followed by dash and name of subpackage. For example package
+_foo_ can have subpackage _foo-devel_. Few specific cases of naming conventions
+follows.
+
+Bindings
+~~~~~~~~
+
+Binding for various languages like perl, python and ruby should be splitted
+into subpackages unless package itself will not function without them. These
+subpackage names should contain package name followed by language name. For
+example if we have package _foo_ that have perl and ruby bindings and optional
+extra components, result will be
+
+Exceptions
+~~~~~~~~~~
+
+Libraries
+^^^^^^^^^
+
+If package provides a library that can be usefull even without main package,
+subpackage containing the library (.so.\*) has to be named after library itsef.
+For example if we are creating package _foo_ that contains library _bar_,
+subpackage name will be _libbar_ and it will contain files matching
+_/usr/lib*/libbar.so.*_
+
+
+-----------------------------------------------------------------------------
+SUBPACKAGE=( "foo-perl" "foo-ruby" )
+-----------------------------------------------------------------------------
+
+
+Bindings
+~~~~~~~~
+
+List of automatically created subpackages
+-----------------------------------------
+
+*-doc
+~~~~~
+
+Subpackage with extra documentation. Typically contains everything in
+/usr/share/doc/$\{PN}. Man and info pages have to stay together with binaries
+they document.
+
+*-devel
+~~~~~~~
+
+All files needed only for development. Contains by default everything in
+/usr/include, .so files that are links, pkgconfig files, cmake and autotools
+modules.
+
+*-debug
+~~~~~~~
+
+Contains splitted debug information - everything under /usr/debug.
+
+lib*
+~~~~
+
+Contains _.so_ files for specified library. For example if we habe subpackage
+_libbar_ it will contain all files matching _/usr/lib*/libbar.so.*_.
+
+*-\{perl,python,ruby}
+~~~~~~~~~~~~~~~~~~~~~
+
+Contains binding for respective languages.
+
+Dependencies
+------------
+
+Optional dependencies
+~~~~~~~~~~~~~~~~~~~~~
+
+$\{ODEPEND}
+^^^^^^^^^^^
+
+New variable $\{ODEPEND} that will contain list of optional dependencies that
+could be installed. Syntax is the same as with other dependencies.
+
+Feature _install-optional_
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Globally optional dependencies can be enabled by FEATURES variable in make.conf
+using _install-optional_ keyword.
+
+For fine graining purposes file will be in /etc/portage/package.optional where
+user can set this option on package basis by putting there full package name
+prefixed with either + or - to specify whether enable or disable optional
+dependencies.
+
+.example
+Enabling optional dependencies for vim, disabling them for emacs
+-----------------------------------------------------------------------------
++app-editors/vim
+-app-editors/emacs
+-----------------------------------------------------------------------------
+
+Depending on subpackages
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.example
+-----------------------------------------------------------------------------
+DEPEND=" foo<foo,foo-perl,libbar>
+         use lorem? ( lorem<devel> )
+       "
+-----------------------------------------------------------------------------
+
+Behavior
+--------
+
+TODO:
+* We need to figure out how to connect subpackages to the main package and
+how to install them all by default.
+* We need zypper to create a metadata for portage and vice versa

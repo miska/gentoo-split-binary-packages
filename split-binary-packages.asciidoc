@@ -65,8 +65,12 @@ Bindings
 Binding for various languages like perl, python and ruby should be splitted
 into subpackages unless package itself will not function without them. These
 subpackage names should contain package name followed by language name. For
-example if we have package _foo_ that have perl and ruby bindings and optional
-extra components, result will be
+example if we have package _foo_ that have perl and ruby bindings, result will
+be
+
+-----------------------------------------------------------------------------
+SUBPACKAGE=( "foo-perl" "foo-ruby" )
+-----------------------------------------------------------------------------
 
 Exceptions
 ~~~~~~~~~~
@@ -79,15 +83,6 @@ subpackage containing the library (.so.\*) has to be named after library itsef.
 For example if we are creating package _foo_ that contains library _bar_,
 subpackage name will be _libbar_ and it will contain files matching
 _/usr/lib*/libbar.so.*_
-
-
------------------------------------------------------------------------------
-SUBPACKAGE=( "foo-perl" "foo-ruby" )
------------------------------------------------------------------------------
-
-
-Bindings
-~~~~~~~~
 
 List of automatically created subpackages
 -----------------------------------------
@@ -167,5 +162,5 @@ Behavior
 
 TODO:
 * We need to figure out how to connect subpackages to the main package and
-how to install them all by default.
+  how to install them all by default.
 * We need zypper to create a metadata for portage and vice versa

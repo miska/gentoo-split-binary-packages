@@ -162,5 +162,6 @@ Behavior
 
 TODO:
 * We need to figure out how to connect subpackages to the main package and
-  how to install them all by default.
+  how to install them all by default (maybe recommends?).
 * We need zypper to create a metadata for portage and vice versa
+* We need to figure out how to do release numbers for binary packages
